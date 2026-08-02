@@ -1,4 +1,4 @@
-module github.com/tommyhedley/go-quickbooks
+module github.com/ascent-building-co/go-quickbooks
 
 go 1.26.1
 
