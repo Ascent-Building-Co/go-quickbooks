@@ -145,9 +145,36 @@ func TestExchangeRateUpdateMarshalPayload(t *testing.T) {
 	assert.Contains(t, string(capturedBody), `"Rate":7`)
 }
 
+func TestExchangeRateCDCExtraction(t *testing.T) {
+	changedSince := time.Date(2026, time.March, 10, 12, 0, 0, 0, time.UTC)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/v3/company/123/cdc", r.URL.Path)
+		assert.Equal(t, string(EntityExchangeRate), r.URL.Query().Get("entities"))
+		assert.Equal(t, changedSince.Format(time.RFC3339), r.URL.Query().Get("changedSince"))
+		w.Header().Set("Content-Type", "application/json")
+		_, err := io.WriteString(w, `{"CDCResponse":[{"QueryResponse":[{"ExchangeRate":[{"SyncToken":"1","domain":"QBO","AsOfDate":"2015-07-07","SourceCurrencyCode":"EUR","Rate":2.5,"TargetCurrencyCode":"USD","MetaData":{"LastUpdatedTime":"2015-07-08T09:24:02-07:00"}}],"startPosition":1,"maxResults":1}]}],"time":"2026-03-10T12:00:00Z"}`)
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	client, err := NewClient(WithHTTPClient(server.Client()), WithBaseURL(server.URL+"/v3/company"))
+	require.NoError(t, err)
+
+	rates, err := client.Company("123", oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "test-token"})).ExchangeRates().ChangeDataCapture(context.Background(), changedSince)
+	require.NoError(t, err)
+	require.Len(t, rates, 1)
+	assert.Equal(t, "EUR", rates[0].SourceCurrencyCode)
+	assert.Equal(t, "2.5", rates[0].Rate.String())
+	assert.Equal(t, "QBO", rates[0].CDCDomain())
+	require.NotNil(t, rates[0].AsOfDate)
+	assert.Equal(t, "2015-07-07", rates[0].AsOfDate.String())
+}
+
 // Compile-time interface compliance checks for ExchangeRate and ExchangeRateService.
-// ExchangeRate does not have an Id field, so it does not satisfy the Entity
-// interface. It satisfies NamedEntity and Syncronized only.
+// ExchangeRate does not have an Id field, so it does not satisfy the Entity or
+// CDCEntity interfaces. It satisfies NamedEntity and Syncronized, and its
+// service supports CDC through EntityCDCReader.
 var (
 	// ExchangeRate entity type compliance — no Identifiable.
 	_ NamedEntity = ExchangeRate{}
@@ -156,8 +183,9 @@ var (
 	// ExchangeRateService operation compliance.
 	// Note: ExchangeRateService does not satisfy Getter because its Get
 	// method takes sourceCurrencyCode + asOfDate instead of a single id.
-	_ Querier[ExchangeRate] = (*ExchangeRateService)(nil)
-	_ Lister[ExchangeRate]  = (*ExchangeRateService)(nil)
-	_ Pager[ExchangeRate]   = (*ExchangeRateService)(nil)
-	_ Updater[ExchangeRate] = (*ExchangeRateService)(nil)
+	_ Querier[ExchangeRate]         = (*ExchangeRateService)(nil)
+	_ Lister[ExchangeRate]          = (*ExchangeRateService)(nil)
+	_ Pager[ExchangeRate]           = (*ExchangeRateService)(nil)
+	_ Updater[ExchangeRate]         = (*ExchangeRateService)(nil)
+	_ EntityCDCReader[ExchangeRate] = (*ExchangeRateService)(nil)
 )

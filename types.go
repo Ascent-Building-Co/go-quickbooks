@@ -12,38 +12,39 @@ import (
 type EntityName string
 
 const (
-	EntityAccount         EntityName = "Account"
-	EntityAttachable      EntityName = "Attachable"
-	EntityBill            EntityName = "Bill"
-	EntityBillPayment     EntityName = "BillPayment"
-	EntityClass           EntityName = "Class"
-	EntityCompanyCurrency EntityName = "CompanyCurrency"
-	EntityCompanyInfo     EntityName = "CompanyInfo"
-	EntityCreditMemo      EntityName = "CreditMemo"
-	EntityCustomer        EntityName = "Customer"
-	EntityCustomerType    EntityName = "CustomerType"
-	EntityDepartment      EntityName = "Department"
-	EntityDeposit         EntityName = "Deposit"
-	EntityEmployee        EntityName = "Employee"
-	EntityEstimate        EntityName = "Estimate"
-	EntityExchangeRate    EntityName = "ExchangeRate"
-	EntityInvoice         EntityName = "Invoice"
-	EntityItem            EntityName = "Item"
-	EntityJournalEntry    EntityName = "JournalEntry"
-	EntityPayment         EntityName = "Payment"
-	EntityPaymentMethod   EntityName = "PaymentMethod"
-	EntityPreferences     EntityName = "Preferences"
-	EntityPurchase        EntityName = "Purchase"
-	EntityPurchaseOrder   EntityName = "PurchaseOrder"
-	EntityReimburseCharge EntityName = "ReimburseCharge"
-	EntityTaxAgency       EntityName = "TaxAgency"
-	EntityTaxCode         EntityName = "TaxCode"
-	EntityTaxRate         EntityName = "TaxRate"
-	EntityTerm            EntityName = "Term"
-	EntityTimeActivity    EntityName = "TimeActivity"
-	EntityTransfer        EntityName = "Transfer"
-	EntityVendor          EntityName = "Vendor"
-	EntityVendorCredit    EntityName = "VendorCredit"
+	EntityAccount             EntityName = "Account"
+	EntityAttachable          EntityName = "Attachable"
+	EntityBill                EntityName = "Bill"
+	EntityBillPayment         EntityName = "BillPayment"
+	EntityClass               EntityName = "Class"
+	EntityCompanyCurrency     EntityName = "CompanyCurrency"
+	EntityCompanyInfo         EntityName = "CompanyInfo"
+	EntityCreditMemo          EntityName = "CreditMemo"
+	EntityCustomer            EntityName = "Customer"
+	EntityCustomerType        EntityName = "CustomerType"
+	EntityDepartment          EntityName = "Department"
+	EntityDeposit             EntityName = "Deposit"
+	EntityEmployee            EntityName = "Employee"
+	EntityEstimate            EntityName = "Estimate"
+	EntityExchangeRate        EntityName = "ExchangeRate"
+	EntityInventoryAdjustment EntityName = "InventoryAdjustment"
+	EntityInvoice             EntityName = "Invoice"
+	EntityItem                EntityName = "Item"
+	EntityJournalEntry        EntityName = "JournalEntry"
+	EntityPayment             EntityName = "Payment"
+	EntityPaymentMethod       EntityName = "PaymentMethod"
+	EntityPreferences         EntityName = "Preferences"
+	EntityPurchase            EntityName = "Purchase"
+	EntityPurchaseOrder       EntityName = "PurchaseOrder"
+	EntityReimburseCharge     EntityName = "ReimburseCharge"
+	EntityTaxAgency           EntityName = "TaxAgency"
+	EntityTaxCode             EntityName = "TaxCode"
+	EntityTaxRate             EntityName = "TaxRate"
+	EntityTerm                EntityName = "Term"
+	EntityTimeActivity        EntityName = "TimeActivity"
+	EntityTransfer            EntityName = "Transfer"
+	EntityVendor              EntityName = "Vendor"
+	EntityVendorCredit        EntityName = "VendorCredit"
 )
 
 func EntityNames() []EntityName {
@@ -63,6 +64,7 @@ func EntityNames() []EntityName {
 		EntityEmployee,
 		EntityEstimate,
 		EntityExchangeRate,
+		EntityInventoryAdjustment,
 		EntityInvoice,
 		EntityItem,
 		EntityJournalEntry,
@@ -83,6 +85,9 @@ func EntityNames() []EntityName {
 	}
 }
 
+// CDCEntityNames returns the entities that support change data capture. QBO
+// supports CDC for every API entity except JournalCode, TaxAgency, TaxCode,
+// TaxRate, and TimeActivity.
 func CDCEntityNames() []EntityName {
 	return []EntityName{
 		EntityAccount,
@@ -99,6 +104,8 @@ func CDCEntityNames() []EntityName {
 		EntityDeposit,
 		EntityEmployee,
 		EntityEstimate,
+		EntityExchangeRate,
+		EntityInventoryAdjustment,
 		EntityInvoice,
 		EntityItem,
 		EntityJournalEntry,

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // ExchangeRateService provides access to the ExchangeRate-related endpoints
@@ -23,12 +24,14 @@ func (c *CompanyClient) ExchangeRates() *ExchangeRateService {
 //
 // ExchangeRate does not have an Id field — it is identified by the
 // combination of SourceCurrencyCode and AsOfDate. As such, it does not
-// satisfy the Entity interface.
+// satisfy the Entity or CDCEntity interfaces, although it does support
+// change data capture.
 //
-// Supported operations are Read (via query params), Query, and Update.
+// Supported operations are Read (via query params), Query, Update, and CDC.
 // Create and Delete are not supported.
 type ExchangeRate struct {
 	SyncTokenValue
+	CDCFields
 
 	MetaData    *ModificationMetaData `json:"MetaData,omitempty"`
 	CustomField []CustomField         `json:"CustomField,omitempty"`
@@ -101,6 +104,18 @@ func (s *ExchangeRateService) Update(ctx context.Context, rate ExchangeRate, opt
 		return nil, err
 	}
 	return &out.ExchangeRate, nil
+}
+
+func (s *ExchangeRateService) ChangeDataCapture(ctx context.Context, changedSince time.Time, opts ...RequestOption) ([]ExchangeRate, error) {
+	resp, err := s.company.ChangeDataCapture(ctx, changedSince, []EntityName{EntityExchangeRate}, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return s.ExtractCDC(resp)
+}
+
+func (s *ExchangeRateService) ExtractCDC(resp *CDCResponse) ([]ExchangeRate, error) {
+	return ExtractCDCEntities[ExchangeRate](resp, EntityExchangeRate)
 }
 
 func (s *ExchangeRateService) ExtractBatch(resp *BatchResponse) ([]ExchangeRate, error) {

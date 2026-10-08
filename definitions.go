@@ -55,6 +55,7 @@ const (
 	SalesItemLineDetailType           LineDetailType = "SalesItemLineDetail"
 	DescriptionOnlyLineDetailType     LineDetailType = "DescriptionOnly"
 	SubTotalLineDetailType            LineDetailType = "SubTotalLineDetail"
+	ItemAdjustmentLineDetailType      LineDetailType = "ItemAdjustmentLineDetail"
 	ItemBasedExpenseLineDetailType    LineDetailType = "ItemBasedExpenseLineDetail"
 	AccountBasedExpenseLineDetailType LineDetailType = "AccountBasedExpenseLineDetail"
 	DepositLineDetailType             LineDetailType = "DepositLineDetail"

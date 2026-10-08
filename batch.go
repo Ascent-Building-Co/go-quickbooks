@@ -29,38 +29,39 @@ const (
 // Entity abbreviation constants for use with BatchItemID. Each two-character
 // abbreviation is unique across all supported QBO entities.
 const (
-	BatchEntityAbbrAccount         = "ac"
-	BatchEntityAbbrAttachable      = "at"
-	BatchEntityAbbrBill            = "bi"
-	BatchEntityAbbrBillPayment     = "bp"
-	BatchEntityAbbrClass           = "cl"
-	BatchEntityAbbrCompanyCurrency = "cc"
-	BatchEntityAbbrCompanyInfo     = "ci"
-	BatchEntityAbbrCreditMemo      = "cm"
-	BatchEntityAbbrCustomer        = "cu"
-	BatchEntityAbbrCustomerType    = "ct"
-	BatchEntityAbbrDepartment      = "de"
-	BatchEntityAbbrDeposit         = "dp"
-	BatchEntityAbbrEmployee        = "em"
-	BatchEntityAbbrEstimate        = "es"
-	BatchEntityAbbrExchangeRate    = "er"
-	BatchEntityAbbrInvoice         = "in"
-	BatchEntityAbbrItem            = "it"
-	BatchEntityAbbrJournalEntry    = "je"
-	BatchEntityAbbrPayment         = "pa"
-	BatchEntityAbbrPaymentMethod   = "pm"
-	BatchEntityAbbrPreferences     = "pr"
-	BatchEntityAbbrPurchase        = "pu"
-	BatchEntityAbbrPurchaseOrder   = "po"
-	BatchEntityAbbrReimburseCharge = "rc"
-	BatchEntityAbbrTaxAgency       = "ta"
-	BatchEntityAbbrTaxCode         = "tc"
-	BatchEntityAbbrTaxRate         = "tr"
-	BatchEntityAbbrTerm            = "te"
-	BatchEntityAbbrTimeActivity    = "ti"
-	BatchEntityAbbrTransfer        = "tf"
-	BatchEntityAbbrVendor          = "ve"
-	BatchEntityAbbrVendorCredit    = "vc"
+	BatchEntityAbbrAccount             = "ac"
+	BatchEntityAbbrAttachable          = "at"
+	BatchEntityAbbrBill                = "bi"
+	BatchEntityAbbrBillPayment         = "bp"
+	BatchEntityAbbrClass               = "cl"
+	BatchEntityAbbrCompanyCurrency     = "cc"
+	BatchEntityAbbrCompanyInfo         = "ci"
+	BatchEntityAbbrCreditMemo          = "cm"
+	BatchEntityAbbrCustomer            = "cu"
+	BatchEntityAbbrCustomerType        = "ct"
+	BatchEntityAbbrDepartment          = "de"
+	BatchEntityAbbrDeposit             = "dp"
+	BatchEntityAbbrEmployee            = "em"
+	BatchEntityAbbrEstimate            = "es"
+	BatchEntityAbbrExchangeRate        = "er"
+	BatchEntityAbbrInventoryAdjustment = "ia"
+	BatchEntityAbbrInvoice             = "in"
+	BatchEntityAbbrItem                = "it"
+	BatchEntityAbbrJournalEntry        = "je"
+	BatchEntityAbbrPayment             = "pa"
+	BatchEntityAbbrPaymentMethod       = "pm"
+	BatchEntityAbbrPreferences         = "pr"
+	BatchEntityAbbrPurchase            = "pu"
+	BatchEntityAbbrPurchaseOrder       = "po"
+	BatchEntityAbbrReimburseCharge     = "rc"
+	BatchEntityAbbrTaxAgency           = "ta"
+	BatchEntityAbbrTaxCode             = "tc"
+	BatchEntityAbbrTaxRate             = "tr"
+	BatchEntityAbbrTerm                = "te"
+	BatchEntityAbbrTimeActivity        = "ti"
+	BatchEntityAbbrTransfer            = "tf"
+	BatchEntityAbbrVendor              = "ve"
+	BatchEntityAbbrVendorCredit        = "vc"
 )
 
 // Operation abbreviation constants for use with BatchItemID.
@@ -75,38 +76,39 @@ const (
 // batchEntityAbbrMap is the single source of truth mapping each EntityName to
 // its abbreviation. EntityAbbr and EntityFromAbbr both derive from this map.
 var batchEntityAbbrMap = map[EntityName]string{
-	EntityAccount:         BatchEntityAbbrAccount,
-	EntityAttachable:      BatchEntityAbbrAttachable,
-	EntityBill:            BatchEntityAbbrBill,
-	EntityBillPayment:     BatchEntityAbbrBillPayment,
-	EntityClass:           BatchEntityAbbrClass,
-	EntityCompanyCurrency: BatchEntityAbbrCompanyCurrency,
-	EntityCompanyInfo:     BatchEntityAbbrCompanyInfo,
-	EntityCreditMemo:      BatchEntityAbbrCreditMemo,
-	EntityCustomer:        BatchEntityAbbrCustomer,
-	EntityCustomerType:    BatchEntityAbbrCustomerType,
-	EntityDepartment:      BatchEntityAbbrDepartment,
-	EntityDeposit:         BatchEntityAbbrDeposit,
-	EntityEmployee:        BatchEntityAbbrEmployee,
-	EntityEstimate:        BatchEntityAbbrEstimate,
-	EntityExchangeRate:    BatchEntityAbbrExchangeRate,
-	EntityInvoice:         BatchEntityAbbrInvoice,
-	EntityItem:            BatchEntityAbbrItem,
-	EntityJournalEntry:    BatchEntityAbbrJournalEntry,
-	EntityPayment:         BatchEntityAbbrPayment,
-	EntityPaymentMethod:   BatchEntityAbbrPaymentMethod,
-	EntityPreferences:     BatchEntityAbbrPreferences,
-	EntityPurchase:        BatchEntityAbbrPurchase,
-	EntityPurchaseOrder:   BatchEntityAbbrPurchaseOrder,
-	EntityReimburseCharge: BatchEntityAbbrReimburseCharge,
-	EntityTaxAgency:       BatchEntityAbbrTaxAgency,
-	EntityTaxCode:         BatchEntityAbbrTaxCode,
-	EntityTaxRate:         BatchEntityAbbrTaxRate,
-	EntityTerm:            BatchEntityAbbrTerm,
-	EntityTimeActivity:    BatchEntityAbbrTimeActivity,
-	EntityTransfer:        BatchEntityAbbrTransfer,
-	EntityVendor:          BatchEntityAbbrVendor,
-	EntityVendorCredit:    BatchEntityAbbrVendorCredit,
+	EntityAccount:             BatchEntityAbbrAccount,
+	EntityAttachable:          BatchEntityAbbrAttachable,
+	EntityBill:                BatchEntityAbbrBill,
+	EntityBillPayment:         BatchEntityAbbrBillPayment,
+	EntityClass:               BatchEntityAbbrClass,
+	EntityCompanyCurrency:     BatchEntityAbbrCompanyCurrency,
+	EntityCompanyInfo:         BatchEntityAbbrCompanyInfo,
+	EntityCreditMemo:          BatchEntityAbbrCreditMemo,
+	EntityCustomer:            BatchEntityAbbrCustomer,
+	EntityCustomerType:        BatchEntityAbbrCustomerType,
+	EntityDepartment:          BatchEntityAbbrDepartment,
+	EntityDeposit:             BatchEntityAbbrDeposit,
+	EntityEmployee:            BatchEntityAbbrEmployee,
+	EntityEstimate:            BatchEntityAbbrEstimate,
+	EntityExchangeRate:        BatchEntityAbbrExchangeRate,
+	EntityInventoryAdjustment: BatchEntityAbbrInventoryAdjustment,
+	EntityInvoice:             BatchEntityAbbrInvoice,
+	EntityItem:                BatchEntityAbbrItem,
+	EntityJournalEntry:        BatchEntityAbbrJournalEntry,
+	EntityPayment:             BatchEntityAbbrPayment,
+	EntityPaymentMethod:       BatchEntityAbbrPaymentMethod,
+	EntityPreferences:         BatchEntityAbbrPreferences,
+	EntityPurchase:            BatchEntityAbbrPurchase,
+	EntityPurchaseOrder:       BatchEntityAbbrPurchaseOrder,
+	EntityReimburseCharge:     BatchEntityAbbrReimburseCharge,
+	EntityTaxAgency:           BatchEntityAbbrTaxAgency,
+	EntityTaxCode:             BatchEntityAbbrTaxCode,
+	EntityTaxRate:             BatchEntityAbbrTaxRate,
+	EntityTerm:                BatchEntityAbbrTerm,
+	EntityTimeActivity:        BatchEntityAbbrTimeActivity,
+	EntityTransfer:            BatchEntityAbbrTransfer,
+	EntityVendor:              BatchEntityAbbrVendor,
+	EntityVendorCredit:        BatchEntityAbbrVendorCredit,
 }
 
 // EntityAbbr returns the batch item ID abbreviation for the given EntityName.
