@@ -1,6 +1,7 @@
 package quickbooks
 
 import (
+	"bytes"
 	"context"
 	"crypto"
 	"crypto/rsa"
@@ -12,7 +13,6 @@ import (
 	"io"
 	"math/big"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -493,13 +493,17 @@ func (c *Client) ValidateIDToken(ctx context.Context, idToken, issuer, jwksURI s
 }
 
 // RevokeToken posts to the OIDC revocation endpoint to invalidate an access
-// or refresh token. The token's value is sent in the request body and the
-// Client's OAuth2 client_id / secret are used as HTTP basic auth, as
-// required by the Intuit revocation endpoint.
+// or refresh token, disconnecting the app from the company. The token is sent
+// as a JSON body ({"token": "..."}) with the Client's OAuth2 client_id /
+// secret as HTTP basic auth — the shape Intuit's own SDKs send, rather than
+// RFC 7009's form encoding.
 //
 // revocationEndpoint should come from the OIDC discovery document.
 // tokenValue can be either an access_token or a refresh_token; revoking a
 // refresh_token also revokes its associated access_tokens.
+//
+// A non-2xx response is returned as an *APIError, so callers can use
+// errors.As to tell a retryable failure (5xx, 429) from a rejected token.
 func (c *Client) RevokeToken(ctx context.Context, revocationEndpoint, tokenValue string) error {
 	if c.oauthConfig == nil {
 		return ErrOAuthConfigNotSet
@@ -511,16 +515,19 @@ func (c *Client) RevokeToken(ctx context.Context, revocationEndpoint, tokenValue
 		return fmt.Errorf("token value is required")
 	}
 
-	form := url.Values{}
-	form.Set("token", tokenValue)
-	body := strings.NewReader(form.Encode())
+	body, err := json.Marshal(struct {
+		Token string `json:"token"`
+	}{Token: tokenValue})
+	if err != nil {
+		return fmt.Errorf("encode revoke request: %w", err)
+	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, revocationEndpoint, body)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, revocationEndpoint, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("build revoke request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/json")
 	req.SetBasicAuth(c.oauthConfig.ClientID, c.oauthConfig.ClientSecret)
 
 	resp, err := c.httpClient.Do(req)
@@ -537,5 +544,5 @@ func (c *Client) RevokeToken(ctx context.Context, revocationEndpoint, tokenValue
 		return nil
 	}
 	respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
-	return fmt.Errorf("revoke endpoint error: status %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
+	return newAPIError(resp.StatusCode, resp.Header, respBody)
 }

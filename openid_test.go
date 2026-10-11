@@ -14,7 +14,6 @@ import (
 	"math/big"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -584,19 +583,20 @@ func TestRevokeToken(t *testing.T) {
 		tokenValue   = "rfsh-abc"
 	)
 
-	t.Run("happy path with form body and basic auth", func(t *testing.T) {
+	t.Run("happy path with json body and basic auth", func(t *testing.T) {
 		var (
-			gotMethod   string
-			gotAuthUser string
-			gotAuthPass string
-			gotForm     url.Values
+			gotMethod      string
+			gotAuthUser    string
+			gotAuthPass    string
+			gotContentType string
+			gotBody        map[string]string
 		)
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			gotMethod = r.Method
 			user, pass, _ := r.BasicAuth()
 			gotAuthUser, gotAuthPass = user, pass
-			require.NoError(t, r.ParseForm())
-			gotForm = r.PostForm
+			gotContentType = r.Header.Get("Content-Type")
+			require.NoError(t, json.NewDecoder(r.Body).Decode(&gotBody))
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer srv.Close()
@@ -608,10 +608,11 @@ func TestRevokeToken(t *testing.T) {
 		assert.Equal(t, http.MethodPost, gotMethod)
 		assert.Equal(t, clientID, gotAuthUser)
 		assert.Equal(t, clientSecret, gotAuthPass)
-		assert.Equal(t, tokenValue, gotForm.Get("token"))
+		assert.Equal(t, "application/json", gotContentType)
+		assert.Equal(t, map[string]string{"token": tokenValue}, gotBody)
 	})
 
-	t.Run("non-success surfaces status", func(t *testing.T) {
+	t.Run("non-success returns APIError with status", func(t *testing.T) {
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			http.Error(w, "bad token", http.StatusBadRequest)
 		}))
@@ -621,7 +622,10 @@ func TestRevokeToken(t *testing.T) {
 		require.NoError(t, err)
 		err = c.RevokeToken(context.Background(), srv.URL, tokenValue)
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "400")
+		var apiErr *APIError
+		require.ErrorAs(t, err, &apiErr)
+		assert.Equal(t, http.StatusBadRequest, apiErr.StatusCode)
+		assert.Equal(t, "bad token", apiErr.Body)
 	})
 
 	t.Run("oauth not configured", func(t *testing.T) {
