@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -376,4 +377,79 @@ func TestExtractBatchItemsServiceMethod(t *testing.T) {
 	all, err := svc.ExtractBatch(&resp)
 	require.NoError(t, err)
 	require.Len(t, all, 2)
+}
+
+// batchServer answers every request with status and body.
+func batchServer(t *testing.T, status int, body string) *CompanyClient {
+	t.Helper()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		_, err := io.WriteString(w, body)
+		require.NoError(t, err)
+	}))
+	t.Cleanup(server.Close)
+
+	client, err := NewClient(WithHTTPClient(server.Client()), WithBaseURL(server.URL+"/v3/company"))
+	require.NoError(t, err)
+	return client.Company("123", oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "test-token"}))
+}
+
+func twoQueries() *BatchRequest {
+	return NewBatchRequest(
+		NewBatchQuery("ok", "SELECT * FROM Term"),
+		NewBatchQuery("bad", "SELECT * FROM TaxCode WHERE Active IN (true, false)"),
+	)
+}
+
+// A fault in one item does not fail the call: the other items succeeded, and
+// the caller reads each item's fault from the response.
+func TestBatchReturnsItemFaultsInTheResponse(t *testing.T) {
+	company := batchServer(t, http.StatusOK, `{"BatchItemResponse":[`+
+		`{"bId":"ok","QueryResponse":{"Term":[{"Id":"1","SyncToken":"0","Name":"Net 30"}],"startPosition":1,"maxResults":1}},`+
+		`{"bId":"bad","Fault":{"type":"ValidationFault","Error":[{"Message":"Invalid query","Detail":"QueryValidationError: Active","code":"4000"}]}}`+
+		`],"time":"2026-10-14T15:00:00.000-07:00"}`)
+
+	resp, err := company.Batch(context.Background(), twoQueries())
+	require.NoError(t, err)
+
+	require.True(t, resp.HasFaults())
+	require.Len(t, resp.Faults(), 1)
+	assert.Equal(t, "bad", resp.Faults()[0].ID)
+	assert.Equal(t, "4000", resp.Faults()[0].Code)
+
+	ok, bad := PartitionBatch(resp.BatchItemResponse)
+	require.Len(t, ok, 1)
+	require.Len(t, bad, 1)
+	assert.Equal(t, "ok", ok[0].ID)
+	assert.False(t, resp.Item("ok").HasFaults())
+}
+
+// A 200 whose body is itself a fault still fails the call.
+func TestBatchFailsOnAWholeBodyFault(t *testing.T) {
+	company := batchServer(t, http.StatusOK,
+		`{"Fault":{"Error":[{"Message":"Duplicate Request ID","Detail":"The request ID already exists","code":"600"}],"type":"ValidationFault"},"time":"2026-10-14T15:00:00.000-07:00"}`)
+
+	_, err := company.Batch(context.Background(), twoQueries())
+
+	var apiErr *APIError
+	require.ErrorAs(t, err, &apiErr)
+	assert.Equal(t, http.StatusOK, apiErr.StatusCode)
+	require.NotNil(t, apiErr.Failure)
+	assert.Equal(t, "600", apiErr.Failure.Fault.Error[0].Code)
+}
+
+// A 4xx batch response fails the call, with its items' faults in the error.
+func TestBatchFailsOn4xxWithItemFaults(t *testing.T) {
+	company := batchServer(t, http.StatusBadRequest, `{"BatchItemResponse":[`+
+		`{"bId":"bad","Fault":{"type":"ValidationFault","Error":[{"Message":"Invalid query","code":"4000"}]}}`+
+		`],"time":"2026-10-14T15:00:00.000-07:00"}`)
+
+	_, err := company.Batch(context.Background(), twoQueries())
+
+	var apiErr *APIError
+	require.ErrorAs(t, err, &apiErr)
+	assert.Equal(t, http.StatusBadRequest, apiErr.StatusCode)
+	require.NotNil(t, apiErr.Failure)
+	assert.Equal(t, "4000", apiErr.Failure.Fault.Error[0].Code)
 }

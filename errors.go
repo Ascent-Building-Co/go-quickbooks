@@ -155,27 +155,42 @@ func newAPIError(statusCode int, headers http.Header, body []byte) *APIError {
 	return err
 }
 
+// parseFailureBody parses the fault in body: a fault that is the body
+// itself, or else the faults of a batch response's items, flattened into one.
 func parseFailureBody(body []byte) *Failure {
+	return parseFailure(body, true)
+}
+
+// parseBodyFault parses a fault that is body itself, ignoring the faults of
+// a batch response's items.
+func parseBodyFault(body []byte) *Failure {
+	return parseFailure(body, false)
+}
+
+func parseFailure(body []byte, batchItems bool) *Failure {
 	body = bytes.TrimSpace(body)
 	if len(body) == 0 {
 		return nil
 	}
 
-	if failure := parseJSONFailure(body); failure != nil {
+	if failure := parseJSONFailure(body, batchItems); failure != nil {
 		return failure
 	}
 
-	if failure := parseXMLFailure(body); failure != nil {
+	if failure := parseXMLFailure(body, batchItems); failure != nil {
 		return failure
 	}
 
 	return nil
 }
 
-func parseJSONFailure(body []byte) *Failure {
+func parseJSONFailure(body []byte, batchItems bool) *Failure {
 	var failure Failure
 	if err := json.Unmarshal(body, &failure); err == nil && failure.HasErrors() {
 		return &failure
+	}
+	if !batchItems {
+		return nil
 	}
 
 	var batch struct {
@@ -206,7 +221,7 @@ func parseJSONFailure(body []byte) *Failure {
 	return nil
 }
 
-func parseXMLFailure(body []byte) *Failure {
+func parseXMLFailure(body []byte, batchItems bool) *Failure {
 	var failure Failure
 	if err := xml.Unmarshal(body, &failure); err == nil && failure.HasErrors() {
 		return &failure
@@ -222,7 +237,7 @@ func parseXMLFailure(body []byte) *Failure {
 			Fault Fault `xml:"Fault"`
 		} `xml:"BatchItemResp"`
 	}
-	if err := xml.Unmarshal(body, &batch); err == nil {
+	if err := xml.Unmarshal(body, &batch); batchItems && err == nil {
 		faults := make([]Fault, 0, len(batch.BatchItemResponse)+len(batch.BatchItemResp))
 		for _, item := range batch.BatchItemResponse {
 			faults = append(faults, item.Fault)

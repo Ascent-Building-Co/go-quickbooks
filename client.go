@@ -607,7 +607,11 @@ func (c *Client) doRequestWithClient(ctx context.Context, httpClient *http.Clien
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		return requestID, nil, apiErr
 	}
-	if apiErr.Failure != nil {
+	// QBO answers some rejected requests with a 200 whose body is a fault;
+	// those are errors. The faults of individual batch items are not: the
+	// other items succeeded, and the caller reads each item's fault from the
+	// BatchResponse.
+	if apiErr.Failure != nil && parseBodyFault(rawBody) != nil {
 		return requestID, nil, apiErr
 	}
 
