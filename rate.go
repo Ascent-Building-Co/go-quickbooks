@@ -3,6 +3,7 @@ package quickbooks
 import (
 	"context"
 	"fmt"
+	"math"
 	"sync"
 	"time"
 
@@ -147,6 +148,37 @@ func (m *RealmRateLimiter) Acquire(ctx context.Context, scope RequestScope) (Con
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	}
+}
+
+// Delay returns how long until Acquire for scope would pass the realm's rate
+// limits, without taking a token: zero when a request could start now. It
+// ignores the concurrency cap. A caller that batches its requests can use it
+// to hold them while the realm's allowance is spent, sending more in one call
+// rather than queueing calls behind the limiter.
+func (m *RealmRateLimiter) Delay(scope RequestScope) time.Duration {
+	limiter, err := m.getRealmLimiter(scope.RealmID)
+	if err != nil {
+		return 0
+	}
+	now := time.Now()
+	delay := tokenDelay(limiter.general, now)
+	if scope.IsBatch {
+		delay = max(delay, tokenDelay(limiter.batch, now))
+	}
+	return delay
+}
+
+// tokenDelay returns how long until l has a whole token at now.
+func tokenDelay(l *rate.Limiter, now time.Time) time.Duration {
+	limit := l.Limit()
+	tokens := l.TokensAt(now)
+	if limit == rate.Inf || tokens >= 1 {
+		return 0
+	}
+	if limit <= 0 {
+		return time.Duration(math.MaxInt64)
+	}
+	return time.Duration((1 - tokens) / float64(limit) * float64(time.Second))
 }
 
 func (m *RealmRateLimiter) getRealmLimiter(realmID string) (*realmRateLimiter, error) {
