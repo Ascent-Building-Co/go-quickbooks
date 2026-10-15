@@ -29,7 +29,7 @@ type Customer struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Conditionally required — at least one combination must produce a unique DisplayName.
 	DisplayName string `json:"DisplayName,omitempty"`

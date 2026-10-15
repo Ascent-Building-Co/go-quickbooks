@@ -67,7 +67,7 @@ type Attachable struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Conditionally required — one of Note or FileName must be present.
 	Note     string `json:"Note,omitempty"`

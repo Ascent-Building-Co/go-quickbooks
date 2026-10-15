@@ -28,7 +28,7 @@ type Employee struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Conditionally required
 	PrimaryAddr *PhysicalAddress `json:"PrimaryAddr,omitempty"`

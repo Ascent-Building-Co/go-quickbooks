@@ -131,7 +131,7 @@ type Preferences struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Optional — server-set defaults are returned for all sub-objects.
 	EmailMessagesPrefs      *EmailMessagesPrefs      `json:"EmailMessagesPrefs,omitempty"`

@@ -38,8 +38,8 @@ type Estimate struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData    *ModificationMetaData `json:"MetaData,omitempty"`
-	CustomField []CustomField         `json:"CustomField,omitempty"`
+	MetaDataValue
+	CustomField []CustomField `json:"CustomField,omitempty"`
 
 	// Required
 	CustomerRef *ReferenceType `json:"CustomerRef,omitempty"`

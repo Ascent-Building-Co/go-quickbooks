@@ -27,7 +27,7 @@ type CustomerType struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Optional
 	Name   string `json:"Name,omitempty"`

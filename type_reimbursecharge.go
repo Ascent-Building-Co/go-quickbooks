@@ -57,7 +57,7 @@ type ReimburseCharge struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	CustomerRef *ReferenceType        `json:"CustomerRef,omitempty"`

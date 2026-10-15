@@ -37,7 +37,7 @@ type Purchase struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	AccountRef  *ReferenceType          `json:"AccountRef,omitempty"`

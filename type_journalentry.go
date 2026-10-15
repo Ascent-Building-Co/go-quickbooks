@@ -52,7 +52,7 @@ type JournalEntry struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	Line []JournalEntryLine `json:"Line,omitempty"`

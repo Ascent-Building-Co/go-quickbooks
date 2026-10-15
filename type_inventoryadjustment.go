@@ -33,7 +33,7 @@ type InventoryAdjustment struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	AdjustAccountRef *ReferenceType            `json:"AdjustAccountRef,omitempty"`

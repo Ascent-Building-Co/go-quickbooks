@@ -36,7 +36,7 @@ type TaxRate struct {
 	IDValue
 	SyncTokenValue
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Optional
 	Name             string             `json:"Name,omitempty"`

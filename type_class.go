@@ -28,7 +28,7 @@ type Class struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	Name string `json:"Name,omitempty"`

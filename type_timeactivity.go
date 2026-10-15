@@ -33,7 +33,7 @@ type TimeActivity struct {
 	IDValue
 	SyncTokenValue
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	NameOf NameOfEnum `json:"NameOf,omitempty"`

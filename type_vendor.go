@@ -42,7 +42,7 @@ type Vendor struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Conditionally required — DisplayName OR at least one name component required.
 	DisplayName string `json:"DisplayName,omitempty"`

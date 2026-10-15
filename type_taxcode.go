@@ -45,7 +45,7 @@ type TaxCode struct {
 	IDValue
 	SyncTokenValue
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	Name string `json:"Name,omitempty"`

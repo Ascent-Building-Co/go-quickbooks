@@ -29,7 +29,7 @@ type TaxAgency struct {
 	IDValue
 	SyncTokenValue
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	DisplayName string `json:"DisplayName,omitempty"`

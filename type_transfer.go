@@ -26,7 +26,7 @@ type Transfer struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	FromAccountRef *ReferenceType `json:"FromAccountRef,omitempty"`

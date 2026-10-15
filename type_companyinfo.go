@@ -35,7 +35,7 @@ type CompanyInfo struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required for update
 	CompanyName string           `json:"CompanyName,omitempty"`

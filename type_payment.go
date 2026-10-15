@@ -37,7 +37,7 @@ type Payment struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	TotalAmt    json.Number    `json:"TotalAmt,omitempty"`

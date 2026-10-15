@@ -47,7 +47,7 @@ type Deposit struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	DepositToAccountRef *ReferenceType `json:"DepositToAccountRef,omitempty"`

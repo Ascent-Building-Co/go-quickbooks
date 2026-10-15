@@ -26,7 +26,7 @@ type Bill struct {
 	SyncTokenValue
 	CDCFields
 
-	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+	MetaDataValue
 
 	// Required
 	VendorRef *ReferenceType `json:"VendorRef,omitempty"`

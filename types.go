@@ -146,10 +146,16 @@ type Syncronized interface {
 	SyncToken() string
 }
 
+// Timestamped is a record that says when QBO last changed it.
+type Timestamped interface {
+	LastUpdated() time.Time
+}
+
 type Entity interface {
 	Identifiable
 	NamedEntity
 	Syncronized
+	Timestamped
 }
 
 type CDCEntity interface {
@@ -172,6 +178,21 @@ type SyncTokenValue struct {
 
 func (v SyncTokenValue) SyncToken() string {
 	return v.SyncTokenValue
+}
+
+// MetaDataValue holds a record's QBO MetaData.
+type MetaDataValue struct {
+	MetaData *ModificationMetaData `json:"MetaData,omitempty"`
+}
+
+// LastUpdated returns when QBO last changed the record, by QBO's clock, or
+// the zero time when the record carries no MetaData. A deleted record from
+// change data capture carries the time of its deletion.
+func (v MetaDataValue) LastUpdated() time.Time {
+	if v.MetaData == nil || v.MetaData.LastUpdatedTime == nil {
+		return time.Time{}
+	}
+	return v.MetaData.LastUpdatedTime.Time
 }
 
 type CDCFields struct {
